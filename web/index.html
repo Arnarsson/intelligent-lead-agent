@@ -81,6 +81,9 @@
     .btn-primary{background:linear-gradient(135deg,var(--accent),#16a34a);border-color:#115e34;color:#031e11}
     .btn-secondary{background:#0a1428}
     .btn-retry{background:#1e3a8a;border-color:#1e40af;color:#93c5fd}
+    .btn-test{background:#4a1d96;border-color:#5b21b6;color:#c4b5fd;position:relative}
+    .btn-test::before{content:"🧪 ";margin-right:4px}
+    .btn-test::after{content:" (TEST)";font-size:11px;opacity:0.8;margin-left:4px}
 
     /* Helpers */
     .helper-text{font-size:13px;color:var(--muted);margin-top:6px}
@@ -360,6 +363,7 @@
 
           <!-- Actions + Progress -->
           <div class="button-group">
+            <button type="button" class="btn-test" id="btnFillTest" title="Udfyld med test-data (Ctrl+Shift+T)">Udfyld testdata</button>
             <button type="button" class="btn-secondary" id="btnReset">Nulstil</button>
             <button type="button" class="btn-retry" id="btnRetry" style="display:none;">Prøv igen</button>
             <button type="submit" class="btn-primary" id="btnSubmit">Send formular</button>
@@ -491,6 +495,94 @@
       updateProgress();
     });
 
+    // ===== Fill Test Data Function =====
+    function fillTestData() {
+      // Contact
+      document.getElementById('contactName').value = '⚠️ TEST - Henning Morten Hørstrup';
+
+      // Jobsites
+      document.getElementById('hub').checked = true;
+      document.getElementById('linkedin').checked = true;
+      document.getElementById('techsavvy').checked = true;
+      document.getElementById('jobsitePriority').value = '1. The Hub\n2. LinkedIn Jobs\n3. TechSavvy';
+
+      // ICP
+      document.getElementById('minEmployees').value = '10‑20';
+      document.getElementById('maxEmployees').value = '200';
+      document.getElementById('ind-tech').checked = true;
+      document.getElementById('ind-saas').checked = true;
+      document.getElementById('geo-dk').checked = true;
+      document.getElementById('minPositions').value = '2';
+      document.getElementById('positionTypes').value = 'Senior Backend Developer, DevOps Engineer';
+      document.getElementById('dealbreak-exclude').checked = true;
+      document.getElementById('otherDealbreakers').value = 'Ingen nonprofits, ingen outsourcing firmaer';
+
+      // Lead Examples
+      document.getElementById('leadExamples').value = `⚠️ TESTDATA - PLACEHOLDER EKSEMPLER ⚠️
+
+1. Synthesia - 150 ansatte, AI video platform, Series B funding, 4 senior developer roller
+2. Lunar - 200 ansatte, Digital bank, nylig Series C, 3 backend udviklere søges
+3. Too Good To Go - 180 ansatte, Food waste app, ekspanderer til UK, søger 2 mobile devs
+4. Pleo - 300 ansatte, Expense management SaaS, Series C, 5 engineering roller
+5. Sana Labs - 90 ansatte, AI learning platform, Series B, 3 ML engineers
+6. Corti - 120 ansatte, Healthcare AI, Series B funding, 2 senior fullstack
+7. Ordrestyring - 45 ansatte, Logistics SaaS, Series A, søger tech lead
+8. Contractbook - 80 ansatte, Contract automation, growing eng team
+9. Templafy - 250 ansatte, Document generation, expansion phase
+10. Billy - 60 ansatte, Accounting software, hiring backend team
+
+Dette er test-eksempler til demo formål.`;
+
+      // Funding
+      document.getElementById('fund-yes').checked = true;
+      document.getElementById('fund-tech').checked = true;
+      document.getElementById('fund-crunch').checked = true;
+
+      // Contact priorities
+      document.getElementById('contactPriority1').value = 'CTO, VP Engineering, Engineering Manager';
+      document.getElementById('contactPriority2').value = 'CEO, Co-founder, Head of Product';
+      document.getElementById('avoidContact').value = 'HR generalist, Recruitment agencies, Junior recruiters';
+
+      // HubSpot
+      document.getElementById('hub-yes').checked = true;
+      document.getElementById('lead-sheet').checked = true;
+      document.getElementById('hubspotTag').value = 'AI-qualified-TEST';
+
+      // Communication
+      document.getElementById('commChannel').value = 'Slack';
+      document.getElementById('commChannel2').value = '#lead-ai-project-test';
+      document.getElementById('technicalContact').value = 'Test Tekniker <test@sourceangel.dk>';
+
+      // Notes
+      document.getElementById('notes').value = '⚠️ DETTE ER TESTDATA ⚠️\n\nDenne formular er udfyldt med placeholder-information til test formål. Alle data skal verificeres og opdateres med rigtige oplysninger før brug.';
+
+      // Update progress bar
+      updateProgress();
+
+      // Show notification
+      const infoBox = document.querySelector('.info-box');
+      const originalText = infoBox.innerHTML;
+      infoBox.innerHTML = '⚠️ <strong>TESTDATA INDLÆST</strong> - Dette er placeholder information til demonstration. Erstat med rigtige data før indsendelse.';
+      infoBox.style.background = '#4a1d96';
+      infoBox.style.borderColor = '#5b21b6';
+      infoBox.style.color = '#c4b5fd';
+
+      setTimeout(() => {
+        infoBox.innerHTML = originalText;
+        infoBox.style.background = '';
+        infoBox.style.borderColor = '';
+        infoBox.style.color = '';
+      }, 5000);
+    }
+
+    // Keyboard shortcut: Ctrl+Shift+T
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+        e.preventDefault();
+        fillTestData();
+      }
+    });
+
     // ===== Utility Functions =====
     const getParam = (key) => new URLSearchParams(location.search).get(key);
 
@@ -617,6 +709,11 @@
         submitBtn.disabled = false;
         submitBtn.textContent = originalText;
       }
+    });
+
+    // ===== Fill Test Data Button =====
+    document.getElementById('btnFillTest').addEventListener('click', () => {
+      fillTestData();
     });
 
     // ===== Retry Button =====
