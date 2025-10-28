@@ -1,0 +1,315 @@
+{
+  "name": "Lead Intelligence Kickoff Form Handler - FIXED",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sa1",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -128,
+        272
+      ],
+      "id": "8a0f96b5-f27d-40d5-bdb7-4c4d75963d75",
+      "name": "Webhook",
+      "webhookId": "66432e97-afdc-4f70-9cb4-56384fa2fa16"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.contact.name}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.body.leadExamples}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "74004e75-422e-4a9d-bb52-d31dfc0aeb44",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        96,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"Kickoff data modtaget\", \"submittedAt\": $json.body.submittedAt} }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "76faae3d-bf1b-4266-b8b7-146341570293",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        544,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Manglende påkrævede felter: contactName eller leadExamples\"} }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "2f761953-e142-4cd9-9bd3-f1ee14adfd2f",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        320,
+        368
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "submittedAt",
+              "value": "={{$json.body.submittedAt}}"
+            },
+            {
+              "name": "contactName",
+              "value": "={{$json.body.contact.name}}"
+            },
+            {
+              "name": "referralSource",
+              "value": "={{$json.body.referralSource}}"
+            },
+            {
+              "name": "jobsites",
+              "value": "={{$json.body.jobsites.join(', ')}}"
+            },
+            {
+              "name": "jobsitePriority",
+              "value": "={{$json.body.jobsitePriority}}"
+            },
+            {
+              "name": "leadExamples",
+              "value": "={{$json.body.leadExamples}}"
+            },
+            {
+              "name": "minEmployees",
+              "value": "={{$json.body.icp.minEmployees}}"
+            },
+            {
+              "name": "maxEmployees",
+              "value": "={{$json.body.icp.maxEmployees}}"
+            },
+            {
+              "name": "industries",
+              "value": "={{$json.body.icp.industries.join(', ')}}"
+            },
+            {
+              "name": "geografi",
+              "value": "={{$json.body.icp.geografi}}"
+            },
+            {
+              "name": "funding",
+              "value": "={{$json.body.funding}}"
+            },
+            {
+              "name": "hubspotAPI",
+              "value": "={{$json.body.hubspot.api}}"
+            },
+            {
+              "name": "leadHandling",
+              "value": "={{$json.body.hubspot.leadHandling}}"
+            },
+            {
+              "name": "commChannel",
+              "value": "={{$json.body.comm.channel}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.body.notes}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3e88412b-c05c-4c55-97fc-8c02c99270a2",
+      "name": "Format Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        320,
+        176
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": "YOUR_GOOGLE_SHEET_ID_HERE",
+        "sheetName": "Kickoff Submissions",
+        "options": {}
+      },
+      "id": "e28728fb-935c-4e79-850b-1392bbf18b5b",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [
+        784,
+        -64
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "q3TeftKbcoW5Nb6h",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "collection": "kickoff_submissions"
+      },
+      "id": "9370a349-3abf-4136-9a67-c9ac125cc8e8",
+      "name": "Save to MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [
+        544,
+        -16
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "dXjQnbs9ge7pN9lz",
+          "mode": "list",
+          "cachedResultName": "Kickoff Submissions",
+          "cachedResultUrl": "/projects/kLiDorHSvSbMcQI5/datatables/dXjQnbs9ge7pN9lz"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [
+        656,
+        208
+      ],
+      "id": "804a2117-6cb1-4a2f-959d-ef52d7564e20",
+      "name": "Upsert row(s)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Save to MongoDB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upsert row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ce51602f-fffb-4945-81ad-2e4d78a07382",
+  "meta": {
+    "instanceId": "ec1ccdf24f8f3b324ea05f5b57837e16b7538c9694c010734b082b8e30179f14"
+  },
+  "tags": [
+    {
+      "name": "Lead Intelligence",
+      "id": "NTQG3taZg8jIminY",
+      "createdAt": "2025-10-28T13:03:57.354Z",
+      "updatedAt": "2025-10-28T13:03:57.354Z"
+    }
+  ]
+}
