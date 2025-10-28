@@ -1,0 +1,322 @@
+{
+  "name": "Lead Intelligence - DATATABLE FOOLPROOF",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sa1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-128, 272],
+      "id": "webhook-1",
+      "name": "Webhook",
+      "webhookId": "66432e97-afdc-4f70-9cb4-56384fa2fa16"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$httpMethod}}",
+              "value2": "OPTIONS"
+            }
+          ]
+        }
+      },
+      "id": "method-check-1",
+      "name": "Check HTTP Method",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [96, 272]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "",
+        "options": {
+          "responseCode": 204,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              },
+              {
+                "name": "Access-Control-Max-Age",
+                "value": "86400"
+              }
+            ]
+          }
+        }
+      },
+      "id": "options-response-1",
+      "name": "OPTIONS Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [320, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.contact?.name}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.body.leadExamples}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-1",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [320, 368]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "submittedAt",
+              "value": "={{$json.body.submittedAt || $now.toISO()}}"
+            },
+            {
+              "name": "contactName",
+              "value": "={{String($json.body.contact?.name || '')}}"
+            },
+            {
+              "name": "referralSource",
+              "value": "={{String($json.body.referralSource || '')}}"
+            },
+            {
+              "name": "jobsites",
+              "value": "={{$json.body.jobsites ? String($json.body.jobsites.join(', ')) : ''}}"
+            },
+            {
+              "name": "jobsitePriority",
+              "value": "={{String($json.body.jobsitePriority || '')}}"
+            },
+            {
+              "name": "leadExamples",
+              "value": "={{String($json.body.leadExamples || '')}}"
+            },
+            {
+              "name": "minEmployees",
+              "value": "={{String($json.body.icp?.minEmployees || '')}}"
+            },
+            {
+              "name": "maxEmployees",
+              "value": "={{String($json.body.icp?.maxEmployees || '')}}"
+            },
+            {
+              "name": "industries",
+              "value": "={{$json.body.icp?.industries ? String($json.body.icp.industries.join(', ')) : ''}}"
+            },
+            {
+              "name": "geografi",
+              "value": "={{String($json.body.icp?.geografi || '')}}"
+            },
+            {
+              "name": "funding",
+              "value": "={{String($json.body.funding || '')}}"
+            },
+            {
+              "name": "hubspotAPI",
+              "value": "={{String($json.body.hubspot?.api || '')}}"
+            },
+            {
+              "name": "leadHandling",
+              "value": "={{String($json.body.hubspot?.leadHandling || '')}}"
+            },
+            {
+              "name": "commChannel",
+              "value": "={{String($json.body.comm?.channel || '')}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{String($json.body.notes || '')}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-1",
+      "name": "Format Data CLEAN",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [544, 272]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "dXjQnbs9ge7pN9lz",
+          "mode": "list",
+          "cachedResultName": "Kickoff Submissions",
+          "cachedResultUrl": "/projects/kLiDorHSvSbMcQI5/datatables/dXjQnbs9ge7pN9lz"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": ["submittedAt"]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [768, 176],
+      "id": "datatable-1",
+      "name": "Save to DataTable"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"Kickoff data modtaget\", \"timestamp\": $now.toISO(), \"contactName\": $json.contactName} }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "success-1",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [768, 368]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Manglende påkrævede felter: contactName eller leadExamples\"} }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "error-1",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [544, 464]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check HTTP Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check HTTP Method": {
+      "main": [
+        [
+          {
+            "node": "OPTIONS Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Format Data CLEAN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data CLEAN": {
+      "main": [
+        [
+          {
+            "node": "Save to DataTable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Lead Intelligence"
+    }
+  ]
+}
