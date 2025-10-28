@@ -1,0 +1,298 @@
+{
+  "name": "Lead Intelligence Kickoff - CORS FIXED",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sa1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-128, 272],
+      "id": "webhook-node",
+      "name": "Webhook",
+      "webhookId": "66432e97-afdc-4f70-9cb4-56384fa2fa16"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$httpMethod}}",
+              "value2": "OPTIONS"
+            }
+          ]
+        }
+      },
+      "id": "method-check",
+      "name": "Check HTTP Method",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [96, 272]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "",
+        "options": {
+          "responseCode": 204,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              },
+              {
+                "name": "Access-Control-Max-Age",
+                "value": "86400"
+              }
+            ]
+          }
+        }
+      },
+      "id": "options-response",
+      "name": "OPTIONS Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [320, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.contact.name}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.body.leadExamples}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-fields",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [320, 368]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "submittedAt",
+              "value": "={{$json.body.submittedAt}}"
+            },
+            {
+              "name": "contactName",
+              "value": "={{$json.body.contact.name}}"
+            },
+            {
+              "name": "referralSource",
+              "value": "={{$json.body.referralSource}}"
+            },
+            {
+              "name": "jobsites",
+              "value": "={{$json.body.jobsites ? $json.body.jobsites.join(', ') : ''}}"
+            },
+            {
+              "name": "jobsitePriority",
+              "value": "={{$json.body.jobsitePriority || ''}}"
+            },
+            {
+              "name": "leadExamples",
+              "value": "={{$json.body.leadExamples}}"
+            },
+            {
+              "name": "minEmployees",
+              "value": "={{$json.body.icp?.minEmployees || ''}}"
+            },
+            {
+              "name": "maxEmployees",
+              "value": "={{$json.body.icp?.maxEmployees || ''}}"
+            },
+            {
+              "name": "industries",
+              "value": "={{$json.body.icp?.industries ? $json.body.icp.industries.join(', ') : ''}}"
+            },
+            {
+              "name": "geografi",
+              "value": "={{$json.body.icp?.geografi || ''}}"
+            },
+            {
+              "name": "funding",
+              "value": "={{$json.body.funding || ''}}"
+            },
+            {
+              "name": "hubspotAPI",
+              "value": "={{$json.body.hubspot?.api || ''}}"
+            },
+            {
+              "name": "leadHandling",
+              "value": "={{$json.body.hubspot?.leadHandling || ''}}"
+            },
+            {
+              "name": "commChannel",
+              "value": "={{$json.body.comm?.channel || ''}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.body.notes || ''}}"
+            },
+            {
+              "name": "rawData",
+              "value": "={{JSON.stringify($json.body)}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-data",
+      "name": "Format Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [544, 272]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"Kickoff data modtaget\", \"timestamp\": $now.toISO(), \"contactName\": $json.contactName} }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [768, 176]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Manglende påkrævede felter: contactName eller leadExamples\"} }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [544, 464]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check HTTP Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check HTTP Method": {
+      "main": [
+        [
+          {
+            "node": "OPTIONS Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Lead Intelligence"
+    }
+  ]
+}
