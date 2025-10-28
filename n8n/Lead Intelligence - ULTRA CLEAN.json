@@ -1,0 +1,257 @@
+{
+  "name": "Lead Intelligence - ULTRA CLEAN",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sa1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-128, 272],
+      "id": "webhook-ultra",
+      "name": "Webhook",
+      "webhookId": "66432e97-afdc-4f70-9cb4-56384fa2fa16"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$httpMethod}}",
+              "value2": "OPTIONS"
+            }
+          ]
+        }
+      },
+      "id": "method-ultra",
+      "name": "Check HTTP Method",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [96, 272]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "",
+        "options": {
+          "responseCode": 204,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              },
+              {
+                "name": "Access-Control-Max-Age",
+                "value": "86400"
+              }
+            ]
+          }
+        }
+      },
+      "id": "options-ultra",
+      "name": "OPTIONS Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [320, 80]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.contact?.name}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.body.leadExamples}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-ultra",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [320, 368]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract ONLY the fields we want - nothing else!\nconst body = $input.item.json.body || {};\nconst contact = body.contact || {};\nconst icp = body.icp || {};\nconst hubspot = body.hubspot || {};\nconst comm = body.comm || {};\n\n// Create clean object with ONLY our fields\nconst cleanData = {\n  submittedAt: String(body.submittedAt || new Date().toISOString()),\n  contactName: String(contact.name || ''),\n  referralSource: String(body.referralSource || ''),\n  jobsites: Array.isArray(body.jobsites) ? body.jobsites.join(', ') : '',\n  jobsitePriority: String(body.jobsitePriority || ''),\n  leadExamples: String(body.leadExamples || ''),\n  minEmployees: String(icp.minEmployees || ''),\n  maxEmployees: String(icp.maxEmployees || ''),\n  industries: Array.isArray(icp.industries) ? icp.industries.join(', ') : '',\n  geografi: String(icp.geografi || ''),\n  funding: String(body.funding || ''),\n  hubspotAPI: String(hubspot.api || ''),\n  leadHandling: String(hubspot.leadHandling || ''),\n  commChannel: String(comm.channel || ''),\n  notes: String(body.notes || '')\n};\n\n// Return ONLY this clean object - no headers, no metadata\nreturn { json: cleanData };"
+      },
+      "id": "function-ultra",
+      "name": "Extract Clean Fields",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [544, 272]
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "dXjQnbs9ge7pN9lz",
+          "mode": "list",
+          "cachedResultName": "Kickoff Submissions",
+          "cachedResultUrl": "/projects/kLiDorHSvSbMcQI5/datatables/dXjQnbs9ge7pN9lz"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": ["submittedAt"]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1,
+      "position": [768, 176],
+      "id": "datatable-ultra",
+      "name": "Save to DataTable"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"Kickoff data modtaget\", \"timestamp\": $now.toISO(), \"contactName\": $json.contactName} }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "success-ultra",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [768, 368]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": false, \"error\": \"Manglende påkrævede felter: contactName eller leadExamples\"} }}",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS, GET"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type, Accept, Origin"
+              }
+            ]
+          }
+        }
+      },
+      "id": "error-ultra",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [544, 464]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Check HTTP Method",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check HTTP Method": {
+      "main": [
+        [
+          {
+            "node": "OPTIONS Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Extract Clean Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Clean Fields": {
+      "main": [
+        [
+          {
+            "node": "Save to DataTable",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "Lead Intelligence"
+    }
+  ]
+}
