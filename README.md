@@ -130,8 +130,13 @@ The form submits the following JSON structure:
 
 ### Manual Testing
 
+**Quick Test with Auto-Fill:**
+- Click the purple 🧪 **"Udfyld testdata (TEST)"** button, or press **Ctrl+Shift+T**
+- All fields populate with clearly marked placeholder data (⚠️ TEST / TESTDATA labels)
+- Perfect for quick demos and testing the complete submission flow
+
 1. **Happy Path Test**
-   - Fill in required fields: `contactName`, `leadExamples`
+   - Use auto-fill button/shortcut or manually fill required fields: `contactName`, `leadExamples`
    - Submit form → should show success message
    - Check DevTools Network tab for POST to webhook
 
@@ -223,6 +228,7 @@ Simply upload the `web/` directory or point to it in your build settings. No bui
 - **Resilient:** localStorage backup + retry mechanism on network failure
 - **Accessible:** WCAG AA compliant with full keyboard navigation
 - **Mobile-Friendly:** Responsive design (breakpoint at 780px)
+- **Test Data Auto-Fill:** One-click button or keyboard shortcut (Ctrl+Shift+T) to fill form with clearly marked placeholder data
 
 ### Customization
 
