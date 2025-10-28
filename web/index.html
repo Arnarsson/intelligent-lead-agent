@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kickoff Information — Lead Intelligence System</title>
+  <style>
+    /* ===== Minimal Dark Theme ===== */
+    :root{
+      --bg:#0b1220;           /* page bg */
+      --card:#0f172a;         /* container */
+      --line:#1e293b;         /* borders */
+      --text:#e2e8f0;         /* main text */
+      --muted:#94a3b8;        /* secondary text */
+      --input:#0a1324;        /* input bg */
+      --input-line:#1f2a3a;   /* input border */
+      --accent:#22c55e;       /* green */
+      --accent2:#2dd4bf;      /* teal */
+      --focus:rgba(45,212,191,.18);
+      --danger:#ef4444;       /* error red */
+      --danger-ink:#fecaca;   /* error text */
+      --success:#052b18;      /* success bg */
+      --success-ink:#86efac;  /* success text */
+      --warn:#f59e0b;         /* asterisk */
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:
+      radial-gradient(900px 500px at 10% -10%, rgba(45,212,191,.06), transparent),
+      radial-gradient(700px 400px at 100% 0%, rgba(34,197,94,.05), transparent),
+      var(--bg);
+      color:var(--text);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+
+    .container{max-width:900px;margin:24px auto 40px;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+
+    /* Header */
+    .header{padding:24px 22px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+    .header h1{margin:0;font-size:22px;letter-spacing:.2px}
+    .header p{margin:0;color:var(--muted);font-size:14px}
+
+    /* Sections */
+    .form-wrapper{padding:24px 18px}
+    .section{margin-bottom:26px;padding-bottom:26px;border-bottom:1px dashed #203046}
+    .section:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
+    .section-title{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+    .section-title::before{content:"";width:3px;height:18px;background:#334155;border-radius:2px}
+
+    /* Inputs */
+    label{display:block;font-weight:600;margin:8px 0 6px}
+    .req::after{content:" *";color:var(--warn)}
+    input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select,textarea{
+      width:100%;padding:12px;border:1px solid var(--input-line);background:var(--input);color:var(--text);
+      border-radius:10px;outline:none;font-size:15px;transition:border-color .2s ease,box-shadow .2s ease}
+    textarea{min-height:110px}
+    input:focus,select:focus,textarea:focus{
+      border-color:var(--accent2);
+      box-shadow:0 0 0 3px var(--focus);
+      outline:2px solid var(--accent2);
+      outline-offset:2px;
+    }
+
+    /* Invalid states */
+    input.invalid,select.invalid,textarea.invalid{border-color:var(--danger)}
+    input[aria-invalid="true"],select[aria-invalid="true"],textarea[aria-invalid="true"]{border-color:var(--danger)}
+
+    .checkbox-group,.radio-group{display:flex;flex-direction:column;gap:10px}
+    .checkbox-item,.radio-item{display:flex;align-items:center;gap:8px;color:var(--text)}
+
+    /* Focus states for checkbox/radio */
+    input[type="checkbox"]:focus,input[type="radio"]:focus{
+      outline:2px solid var(--accent2);
+      outline-offset:2px;
+    }
+
+    /* Buttons */
+    .button-group{display:flex;gap:10px;margin-top:26px;justify-content:center;flex-wrap:wrap}
+    button{padding:12px 18px;font-weight:700;border-radius:12px;border:1px solid var(--line);background:#0b1326;color:var(--text);cursor:pointer;transition:all .2s ease}
+    button:hover:not(:disabled){border-color:#2a3b55;transform:translateY(-1px)}
+    button:focus{outline:2px solid var(--accent2);outline-offset:2px}
+    button:disabled{opacity:0.6;cursor:not-allowed}
+    .btn-primary{background:linear-gradient(135deg,var(--accent),#16a34a);border-color:#115e34;color:#031e11}
+    .btn-secondary{background:#0a1428}
+    .btn-retry{background:#1e3a8a;border-color:#1e40af;color:#93c5fd}
+
+    /* Helpers */
+    .helper-text{font-size:13px;color:var(--muted);margin-top:6px}
+    .error-text{font-size:13px;color:var(--danger-ink);margin-top:6px;display:none}
+    .error-text.show{display:block}
+    .info-box{background:#0a1d15;border-left:4px solid var(--accent);padding:12px 14px;border-radius:10px;color:#b1f1c7;margin-bottom:16px}
+
+    /* Alerts (dark) */
+    .alert{padding:12px 14px;border-radius:10px;margin-bottom:14px;display:none}
+    .alert.success{background:var(--success);border:1px solid #14532d;color:var(--success-ink)}
+    .alert.error{background:#2a0a0a;border:1px solid #7f1d1d;color:var(--danger-ink)}
+    .alert.show{display:block}
+
+    /* Progress */
+    .progress{width:100%;height:8px;background:#0e1a2e;border:1px solid #1e2a42;border-radius:999px;margin-top:18px;overflow:hidden}
+    .progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .25s ease}
+
+    /* Grid */
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:780px){.grid-2{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>🚀 Kickoff Information</h1>
+        <p>Lead Intelligence System – Source Angel ApS</p>
+      </div>
+
+      <div class="form-wrapper">
+        <!-- Alert areas with aria-live -->
+        <div class="alert success" id="successMsg" role="alert" aria-live="polite" aria-atomic="true"></div>
+        <div class="alert error" id="errorMsg" role="alert" aria-live="polite" aria-atomic="true"></div>
+
+        <div class="info-box" role="note">
+          ℹ️ Udfyld denne formular med så meget som muligt. Felter markeret med <span class="req"></span> er vigtige. Hvis du er usikker på noget, lad det stå tomt – vi diskuterer det på kickoff-mødet.
+        </div>
+
+        <form id="kickoffForm" novalidate>
+          <!-- 1. Kontakt -->
+          <div class="section">
+            <h2 class="section-title">Kontaktinformation</h2>
+            <div class="form-group">
+              <label for="contactName" class="req">Dit navn</label>
+              <input
+                id="contactName"
+                name="contactName"
+                type="text"
+                placeholder="Henning Hørstrup"
+                required
+                aria-required="true"
+                aria-describedby="contactName-error"
+                aria-invalid="false">
+              <span id="contactName-error" class="error-text" role="alert">Dette felt er påkrævet</span>
+            </div>
+          </div>
+
+          <!-- 2. Jobsites -->
+          <div class="section">
+            <h2 class="section-title">Jobsites & kilder</h2>
+            <div class="form-group">
+              <label class="req">Hvilke jobsites bruger I aktivt?</label>
+              <div class="checkbox-group" role="group" aria-describedby="jobsites-helper">
+                <div class="checkbox-item"><input type="checkbox" id="hub" name="jobsites" value="The Hub"><label for="hub">The Hub (thehub.dk)</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="jobindex" name="jobsites" value="Jobindex"><label for="jobindex">Jobindex</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="linkedin" name="jobsites" value="LinkedIn Jobs"><label for="linkedin">LinkedIn Jobs</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="techsavvy" name="jobsites" value="TechSavvy"><label for="techsavvy">TechSavvy (funding‑data)</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="crunchbase" name="jobsites" value="Crunchbase"><label for="crunchbase">Crunchbase</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="other-site" name="jobsites" value="Andet"><label for="other-site">Andet site</label></div>
+              </div>
+              <div class="helper-text" id="otherSiteHelper" style="display:none;">Hvilke andre sites?</div>
+              <input
+                type="text"
+                name="otherSiteName"
+                id="otherSiteName"
+                placeholder="Navn på andre sites…"
+                style="margin-top:10px;display:none;"
+                aria-describedby="otherSiteName-error"
+                aria-invalid="false">
+              <span id="otherSiteName-error" class="error-text" role="alert">Angiv venligst navn på andre sites</span>
+            </div>
+            <div class="form-group">
+              <label for="jobsitePriority">Sorter jobsites efter prioritet (1 = vigtigst)</label>
+              <div class="helper-text" id="jobsites-helper">Hvad er vigtigst for jer at have med fra starten?</div>
+              <textarea id="jobsitePriority" name="jobsitePriority" placeholder="Eks: 1. The Hub, 2. LinkedIn, 3. TechSavvy…" aria-describedby="jobsites-helper"></textarea>
+            </div>
+          </div>
+
+          <!-- 3. ICP -->
+          <div class="section">
+            <h2 class="section-title">Jeres idealkundeprofil (ICP)</h2>
+            <div class="info-box" role="note">Dette hjælper os med at filtrere præcis dem I ønsker at kontakte.</div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="minEmployees" class="req">Min. antal ansatte</label>
+                <select id="minEmployees" name="minEmployees" required aria-required="true">
+                  <option value="">Vælg…</option>
+                  <option>2‑5</option><option>5‑10</option><option>10‑20</option><option>20‑50</option><option>50+</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="maxEmployees" class="req">Maks. antal ansatte</label>
+                <select id="maxEmployees" name="maxEmployees" required aria-required="true">
+                  <option value="">Vælg…</option>
+                  <option>50</option><option>100</option><option>200</option><option>500</option><option>1000+</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="req">Industri/virksomhedstype</label>
+              <div class="checkbox-group" role="group">
+                <div class="checkbox-item"><input type="checkbox" id="ind-tech" name="industry" value="Teknologistartups"><label for="ind-tech">Teknologistartups</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="ind-web" name="industry" value="Webbureauer"><label for="ind-web">Webbureauer / Agentur</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="ind-fintech" name="industry" value="Fintech"><label for="ind-fintech">Fintech</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="ind-saas" name="industry" value="SaaS"><label for="ind-saas">SaaS‑virksomheder</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="ind-other" name="industry" value="Anden"><label for="ind-other">Anden (beskriv nedenfor)</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="otherIndustry">Anden industri (hvis relevant)</label>
+              <input id="otherIndustry" type="text" name="otherIndustry" placeholder="Beskriv…">
+            </div>
+            <div class="form-group">
+              <label class="req">Geografi</label>
+              <div class="radio-group" role="radiogroup">
+                <div class="radio-item"><input type="radio" id="geo-dk" name="geografi" value="Danmark" checked><label for="geo-dk">Danmark</label></div>
+                <div class="radio-item"><input type="radio" id="geo-scan" name="geografi" value="Skandinavien"><label for="geo-scan">Skandinavien (DK+SE+NO)</label></div>
+                <div class="radio-item"><input type="radio" id="geo-eu" name="geografi" value="EU"><label for="geo-eu">EU</label></div>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label for="minPositions" class="req">Min. antal IT‑stillinger</label>
+                <select id="minPositions" name="minPositions" required aria-required="true">
+                  <option value="">Vælg…</option>
+                  <option>1</option><option>2</option><option>3+</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="positionTypes">Type af stillinger I leder efter</label>
+                <input id="positionTypes" type="text" name="positionTypes" placeholder="Eks: Senior Dev, Backend, Frontend…">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>DEALBREAKER: Østeuropæiske teams</label>
+              <div class="radio-group" role="radiogroup">
+                <div class="radio-item"><input type="radio" id="dealbreak-exclude" name="dealbreaker" value="Automatisk udelukket" checked><label for="dealbreak-exclude">Automatisk udelukket hvis de har team i Polen/Rumænien/Ukraine</label></div>
+                <div class="radio-item"><input type="radio" id="dealbreak-flag" name="dealbreaker" value="Flag til gennemgang"><label for="dealbreak-flag">Flag til gennemgang (vi spørger jer først)</label></div>
+                <div class="radio-item"><input type="radio" id="dealbreak-ignore" name="dealbreaker" value="Interesser os ikke"><label for="dealbreak-ignore">Interesser os ikke (tag dem med alligevel)</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="otherDealbreakers">Andre dealbreakers?</label>
+              <textarea id="otherDealbreakers" name="otherDealbreakers" placeholder="Eks: nonprofit, >500 ansatte, søger outsourcing…"></textarea>
+            </div>
+          </div>
+
+          <!-- 4. Lead eksempler -->
+          <div class="section">
+            <h2 class="section-title">10–20 eksempler på gode leads</h2>
+            <div class="info-box" role="note">Send os navne på virksomheder I gerne vil kontakte. Det hjælper os med at forstå præcist hvad "god kvalitet" betyder for jer.</div>
+            <div class="form-group">
+              <label for="leadExamples" class="req">Virksomheder I ønsker at kontakte</label>
+              <textarea
+                id="leadExamples"
+                name="leadExamples"
+                required
+                aria-required="true"
+                aria-describedby="leadExamples-helper leadExamples-error"
+                aria-invalid="false"
+                placeholder="Eks:
+1. Synthesia – 150 ansatte, 4 senior dev‑roller, Series B
+2. Lunar – 200 ansatte, 3 backend‑udviklere, nylig funding
+3. [Jeres eksempel]
+…"></textarea>
+              <div class="helper-text" id="leadExamples-helper">En pr. linje eller adskilt med komma</div>
+              <span id="leadExamples-error" class="error-text" role="alert">Angiv venligst mindst 10 virksomhedseksempler</span>
+            </div>
+          </div>
+
+          <!-- 5. Finansiering -->
+          <div class="section">
+            <h2 class="section-title">Finansiering</h2>
+            <div class="form-group">
+              <label>Prioriter vi nylige finansieringsmeddelelser?</label>
+              <div class="radio-group" role="radiogroup">
+                <div class="radio-item"><input type="radio" id="fund-yes" name="funding" value="Ja" checked><label for="fund-yes">Ja – prioriter Series A/B/C</label></div>
+                <div class="radio-item"><input type="radio" id="fund-no" name="funding" value="Nej"><label for="fund-no">Nej – ikke relevant</label></div>
+                <div class="radio-item"><input type="radio" id="fund-maybe" name="funding" value="Måske"><label for="fund-maybe">Måske – åbne for begge</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Hvor finder I finansieringsoplysninger?</label>
+              <div class="checkbox-group" role="group">
+                <div class="checkbox-item"><input type="checkbox" id="fund-tech" name="fundingSources" value="TechSavvy"><label for="fund-tech">TechSavvy</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="fund-crunch" name="fundingSources" value="Crunchbase"><label for="fund-crunch">Crunchbase</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="fund-linkedin" name="fundingSources" value="LinkedIn"><label for="fund-linkedin">LinkedIn</label></div>
+                <div class="checkbox-item"><input type="checkbox" id="fund-manual" name="fundingSources" value="Manuelt"><label for="fund-manual">Manuelt / andet</label></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Kontaktpersoner -->
+          <div class="section">
+            <h2 class="section-title">Hvem skal vi kontakte?</h2>
+            <div class="form-group">
+              <label for="contactPriority1">Prioritet 1 – bedst at kontakte</label>
+              <input id="contactPriority1" name="contactPriority1" type="text" placeholder="Eks: CTO, VP Engineering, Eng. Manager">
+            </div>
+            <div class="form-group">
+              <label for="contactPriority2">Prioritet 2 – alternativ</label>
+              <input id="contactPriority2" name="contactPriority2" type="text" placeholder="Eks: CEO, Medstifter">
+            </div>
+            <div class="form-group">
+              <label for="avoidContact">UNDGÅ at kontakte</label>
+              <input id="avoidContact" name="avoidContact" type="text" placeholder="Eks: HR, Rekrutteringsbureauer">
+            </div>
+          </div>
+
+          <!-- 7. HubSpot -->
+          <div class="section">
+            <h2 class="section-title">HubSpot Integration</h2>
+            <div class="form-group">
+              <label class="req">HubSpot API‑nøgle tilgængelig?</label>
+              <div class="radio-group" role="radiogroup">
+                <div class="radio-item"><input type="radio" id="hub-yes" name="hubspotAPI" value="Ja - vil dele via sikker kanal" required><label for="hub-yes">Ja – vil dele via sikker kanal</label></div>
+                <div class="radio-item"><input type="radio" id="hub-no" name="hubspotAPI" value="Nej - skal genereres"><label for="hub-no">Nej – skal genereres først</label></div>
+                <div class="radio-item"><input type="radio" id="hub-unsure" name="hubspotAPI" value="Usikker"><label for="hub-unsure">Usikker – kan diskuteres</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Når systemet finder et godt lead, hvad skal ske?</label>
+              <div class="radio-group" role="radiogroup">
+                <div class="radio-item"><input type="radio" id="lead-sheet" name="leadHandling" value="Google Sheet manuel" checked><label for="lead-sheet">Gem i Google Sheet – manuel gennemgang</label></div>
+                <div class="radio-item"><input type="radio" id="lead-direct" name="leadHandling" value="HubSpot direkte"><label for="lead-direct">Send direkte til HubSpot (kold kontakt)</label></div>
+                <div class="radio-item"><input type="radio" id="lead-tag" name="leadHandling" value="HubSpot med tag"><label for="lead-tag">HubSpot med automatisk mærkat</label></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="hubspotTag">Hvad skal mærkatet hedde (hvis relevant)?</label>
+              <input id="hubspotTag" name="hubspotTag" type="text" placeholder="Eks: 'AI‑qualified', 'Source Angel Prospect'">
+            </div>
+          </div>
+
+          <!-- 8. Kommunikation -->
+          <div class="section">
+            <h2 class="section-title">Kommunikation & support</h2>
+            <div class="form-group">
+              <label for="commChannel">Foretrukken kommunikationskanal</label>
+              <select id="commChannel" name="commChannel">
+                <option value="">Vælg…</option>
+                <option>E‑mail</option>
+                <option>Slack</option>
+                <option>Microsoft Teams</option>
+                <option>Blandet</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="commChannel2">Slack kanal / e‑mail gruppe (hvis relevant)</label>
+              <input id="commChannel2" name="commChannel2" type="text" placeholder="Eks: #lead‑ai‑project eller ai‑team@sourceangel.dk">
+            </div>
+            <div class="form-group">
+              <label for="technicalContact">Teknisk kontakt (SSH/database adgang osv.)</label>
+              <input id="technicalContact" name="technicalContact" type="text" placeholder="Navn og e‑mail">
+            </div>
+          </div>
+
+          <!-- 11. Noter -->
+          <div class="section">
+            <h2 class="section-title">Øvrige noter</h2>
+            <div class="form-group">
+              <label for="notes">Er der andet vi skal vide?</label>
+              <textarea id="notes" name="notes" placeholder="Skriv her hvis du har andre bekymringer, spørgsmål eller vigtig kontekst…"></textarea>
+            </div>
+          </div>
+
+          <!-- Actions + Progress -->
+          <div class="button-group">
+            <button type="button" class="btn-secondary" id="btnReset">Nulstil</button>
+            <button type="button" class="btn-retry" id="btnRetry" style="display:none;">Prøv igen</button>
+            <button type="submit" class="btn-primary" id="btnSubmit">Send formular</button>
+          </div>
+          <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('kickoffForm');
+
+    // ===== Webhook Configuration =====
+    // Update this URL to match your n8n webhook endpoint
+    const WEBHOOK_URL = 'https://n8n.svenarnarsson.com/webhook/sa1';
+
+    // ===== Validation Functions =====
+    function validateField(field) {
+      const value = (field.value || '').trim();
+      const errorSpan = document.getElementById(field.id + '-error');
+
+      if (field.hasAttribute('required') && !value) {
+        field.setAttribute('aria-invalid', 'true');
+        field.classList.add('invalid');
+        if (errorSpan) errorSpan.classList.add('show');
+        return false;
+      } else {
+        field.setAttribute('aria-invalid', 'false');
+        field.classList.remove('invalid');
+        if (errorSpan) errorSpan.classList.remove('show');
+        return true;
+      }
+    }
+
+    function validateForm() {
+      let isValid = true;
+      const errors = [];
+
+      // Validate contactName
+      const contactName = document.getElementById('contactName');
+      if (!validateField(contactName)) {
+        errors.push({ field: contactName, message: 'Dit navn er påkrævet' });
+        isValid = false;
+      }
+
+      // Validate leadExamples
+      const leadExamples = document.getElementById('leadExamples');
+      if (!validateField(leadExamples)) {
+        errors.push({ field: leadExamples, message: 'Lead eksempler er påkrævet' });
+        isValid = false;
+      }
+
+      // Validate dynamic "Andet site" field
+      const otherToggle = document.getElementById('other-site');
+      const otherInput = document.getElementById('otherSiteName');
+      if (otherToggle.checked && !otherInput.value.trim()) {
+        otherInput.setAttribute('aria-invalid', 'true');
+        otherInput.classList.add('invalid');
+        const errorSpan = document.getElementById('otherSiteName-error');
+        if (errorSpan) errorSpan.classList.add('show');
+        errors.push({ field: otherInput, message: 'Angiv venligst navn på andre sites' });
+        isValid = false;
+      }
+
+      // Focus first invalid field
+      if (!isValid && errors.length > 0) {
+        const firstError = errors[0].field;
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => firstError.focus(), 300);
+      }
+
+      return isValid;
+    }
+
+    // Add blur validation to required fields
+    ['contactName', 'leadExamples', 'otherSiteName'].forEach(id => {
+      const field = document.getElementById(id);
+      if (field) {
+        field.addEventListener('blur', () => validateField(field));
+        field.addEventListener('input', () => {
+          if (field.classList.contains('invalid')) {
+            validateField(field);
+          }
+        });
+      }
+    });
+
+    // ===== Progress Tracking =====
+    form.addEventListener('change', updateProgress);
+    form.addEventListener('input', updateProgress);
+
+    function updateProgress(){
+      const inputs = form.querySelectorAll('input, select, textarea');
+      let filled = 0;
+      let total = 0;
+
+      inputs.forEach(input=>{
+        const hidden = (input.style && input.style.display==='none');
+        if(hidden) return;
+        total++;
+        if((input.type==='checkbox' || input.type==='radio')){
+          if(input.checked) filled++;
+        } else if((input.value||'').trim()!==''){
+          filled++;
+        }
+      });
+
+      const pct = total ? Math.round((filled/total)*100) : 0;
+      document.getElementById('progressBar').style.width = pct+'%';
+    }
+
+    // ===== Dynamic Field: Other Site Toggle =====
+    const otherToggle = document.getElementById('other-site');
+    const otherHelp = document.getElementById('otherSiteHelper');
+    const otherInput = document.getElementById('otherSiteName');
+
+    otherToggle.addEventListener('change', ()=>{
+      const on = otherToggle.checked;
+      otherHelp.style.display = on ? 'block' : 'none';
+      otherInput.style.display = on ? 'block' : 'none';
+      otherInput.required = on;
+      if (!on) {
+        otherInput.setAttribute('aria-invalid', 'false');
+        otherInput.classList.remove('invalid');
+        const errorSpan = document.getElementById('otherSiteName-error');
+        if (errorSpan) errorSpan.classList.remove('show');
+      }
+      updateProgress();
+    });
+
+    // ===== Utility Functions =====
+    const getParam = (key) => new URLSearchParams(location.search).get(key);
+
+    function showSuccess(msg) {
+      const el = document.getElementById('successMsg');
+      el.textContent = msg;
+      el.classList.add('show');
+      // Hide error if showing
+      document.getElementById('errorMsg').classList.remove('show');
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.textContent = '❌ ' + msg;
+      el.classList.add('show');
+      // Auto-hide after 6 seconds
+      setTimeout(() => el.classList.remove('show'), 6000);
+    }
+
+    function hideAlerts() {
+      document.getElementById('successMsg').classList.remove('show');
+      document.getElementById('errorMsg').classList.remove('show');
+    }
+
+    // ===== Form Submission =====
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideAlerts();
+
+      // Validate form
+      if (!validateForm()) {
+        showError('Udfyld venligst alle påkrævede felter korrekt');
+        return;
+      }
+
+      const fd = new FormData(form);
+      const data = {
+        submittedAt: new Date().toISOString(),
+        referralSource: getParam('ref') || 'direct',
+        userAgent: navigator.userAgent,
+        contact: { name: fd.get('contactName') },
+        jobsites: fd.getAll('jobsites'),
+        jobsitePriority: fd.get('jobsitePriority'),
+        otherSite: otherInput && otherInput.value,
+        icp: {
+          minEmployees: fd.get('minEmployees'),
+          maxEmployees: fd.get('maxEmployees'),
+          industries: fd.getAll('industry'),
+          otherIndustry: fd.get('otherIndustry'),
+          geografi: fd.get('geografi'),
+          minPositions: fd.get('minPositions'),
+          dealbreaker: fd.get('dealbreaker'),
+          positionTypes: fd.get('positionTypes'),
+          otherDealbreakers: fd.get('otherDealbreakers')
+        },
+        leadExamples: fd.get('leadExamples'),
+        funding: fd.get('funding'),
+        fundingSources: fd.getAll('fundingSources'),
+        hubspot: {
+          api: fd.get('hubspotAPI'),
+          leadHandling: fd.get('leadHandling'),
+          tag: fd.get('hubspotTag')
+        },
+        comm: {
+          channel: fd.get('commChannel'),
+          group: fd.get('commChannel2'),
+          tech: fd.get('technicalContact')
+        },
+        notes: fd.get('notes')
+      };
+
+      // Save to localStorage for resilience
+      try {
+        localStorage.setItem('kickoffData', JSON.stringify(data, null, 2));
+        localStorage.setItem('kickoffData_timestamp', new Date().toISOString());
+      } catch(err) {
+        console.warn('localStorage save failed', err);
+      }
+
+      // Button UX
+      const submitBtn = document.getElementById('btnSubmit');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sender…';
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        showSuccess('✅ Sendt! Vi har modtaget jeres kickoff‑data.');
+
+        // Clear localStorage on success
+        try {
+          localStorage.removeItem('kickoffData');
+          localStorage.removeItem('kickoffData_timestamp');
+        } catch(err) {
+          console.warn('localStorage clear failed', err);
+        }
+
+        // Hide retry button
+        document.getElementById('btnRetry').style.display = 'none';
+
+        // Optional: Ask user if they want to clear form
+        setTimeout(() => {
+          if (confirm('Vil du nulstille formularen?')) {
+            form.reset();
+            updateProgress();
+            hideAlerts();
+          }
+        }, 2000);
+
+      } catch (err) {
+        console.error('Webhook error:', err);
+        showError('Kunne ikke sende til webhook. Data er gemt lokalt. Klik "Prøv igen" eller tjek din internetforbindelse.');
+
+        // Show retry button
+        document.getElementById('btnRetry').style.display = 'inline-block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+
+    // ===== Retry Button =====
+    document.getElementById('btnRetry').addEventListener('click', () => {
+      // Check if we have saved data
+      const savedData = localStorage.getItem('kickoffData');
+      if (savedData) {
+        // Trigger form submission again
+        form.dispatchEvent(new Event('submit'));
+      } else {
+        showError('Ingen gemt data fundet. Udfyld formularen og prøv igen.');
+        document.getElementById('btnRetry').style.display = 'none';
+      }
+    });
+
+    // ===== Reset Button =====
+    document.getElementById('btnReset').addEventListener('click', () => {
+      if (confirm('Er du sikker på, at du vil nulstille alle felter?')) {
+        form.reset();
+        otherHelp.style.display = 'none';
+        otherInput.style.display = 'none';
+        otherInput.required = false;
+
+        // Clear validation states
+        document.querySelectorAll('.invalid').forEach(el => {
+          el.classList.remove('invalid');
+          el.setAttribute('aria-invalid', 'false');
+        });
+        document.querySelectorAll('.error-text.show').forEach(el => {
+          el.classList.remove('show');
+        });
+
+        hideAlerts();
+        updateProgress();
+
+        // Clear localStorage
+        try {
+          localStorage.removeItem('kickoffData');
+          localStorage.removeItem('kickoffData_timestamp');
+        } catch(err) {
+          console.warn('localStorage clear failed', err);
+        }
+      }
+    });
+
+    // ===== Check for Saved Data on Load =====
+    window.addEventListener('load', () => {
+      const savedData = localStorage.getItem('kickoffData');
+      const savedTimestamp = localStorage.getItem('kickoffData_timestamp');
+
+      if (savedData && savedTimestamp) {
+        const savedTime = new Date(savedTimestamp);
+        const now = new Date();
+        const hoursSince = (now - savedTime) / (1000 * 60 * 60);
+
+        // Show retry button if data is less than 24 hours old
+        if (hoursSince < 24) {
+          document.getElementById('btnRetry').style.display = 'inline-block';
+          showError('Der er gemt data fra tidligere. Klik "Prøv igen" for at sende det.');
+        }
+      }
+
+      updateProgress();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,259 @@
+{
+  "name": "Lead Intelligence Kickoff Form Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "sa1",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Methods",
+                "value": "POST, OPTIONS"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        },
+        "responseMode": "responseNode",
+        "httpMethod": "POST"
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "lead-intel-kickoff"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.contact.name}}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{$json.body.leadExamples}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-required-fields",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\"success\": true, \"message\": \"Kickoff data modtaget\", \"submittedAt\": $json.body.submittedAt} }}",
+        "options": {}
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 200]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={{ {\"success\": false, \"error\": \"Manglende påkrævede felter: contactName eller leadExamples\"} }}",
+        "options": {}
+      },
+      "id": "error-response",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "submittedAt",
+              "value": "={{$json.body.submittedAt}}"
+            },
+            {
+              "name": "contactName",
+              "value": "={{$json.body.contact.name}}"
+            },
+            {
+              "name": "referralSource",
+              "value": "={{$json.body.referralSource}}"
+            },
+            {
+              "name": "jobsites",
+              "value": "={{$json.body.jobsites.join(', ')}}"
+            },
+            {
+              "name": "jobsitePriority",
+              "value": "={{$json.body.jobsitePriority}}"
+            },
+            {
+              "name": "leadExamples",
+              "value": "={{$json.body.leadExamples}}"
+            },
+            {
+              "name": "minEmployees",
+              "value": "={{$json.body.icp.minEmployees}}"
+            },
+            {
+              "name": "maxEmployees",
+              "value": "={{$json.body.icp.maxEmployees}}"
+            },
+            {
+              "name": "industries",
+              "value": "={{$json.body.icp.industries.join(', ')}}"
+            },
+            {
+              "name": "geografi",
+              "value": "={{$json.body.icp.geografi}}"
+            },
+            {
+              "name": "funding",
+              "value": "={{$json.body.funding}}"
+            },
+            {
+              "name": "hubspotAPI",
+              "value": "={{$json.body.hubspot.api}}"
+            },
+            {
+              "name": "leadHandling",
+              "value": "={{$json.body.hubspot.leadHandling}}"
+            },
+            {
+              "name": "commChannel",
+              "value": "={{$json.body.comm.channel}}"
+            },
+            {
+              "name": "notes",
+              "value": "={{$json.body.notes}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-data",
+      "name": "Format Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [650, 200]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "sheetName": "Kickoff Submissions",
+        "documentId": "YOUR_GOOGLE_SHEET_ID_HERE",
+        "options": {}
+      },
+      "id": "save-to-google-sheets",
+      "name": "Save to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 3,
+      "position": [850, 100],
+      "disabled": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIALS_ID",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "collection": "kickoff_submissions",
+        "options": {}
+      },
+      "id": "save-to-mongodb",
+      "name": "Save to MongoDB",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [850, 50],
+      "disabled": true,
+      "credentials": {
+        "mongoDb": {
+          "id": "YOUR_CREDENTIALS_ID",
+          "name": "MongoDB"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Required Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Required Fields": {
+      "main": [
+        [
+          {
+            "node": "Format Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data": {
+      "main": [
+        [
+          {
+            "node": "Save to MongoDB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save to Google Sheets",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "name": "Lead Intelligence",
+      "id": "lead-intel"
+    }
+  ],
+  "pinData": {},
+  "versionId": "1"
+}
